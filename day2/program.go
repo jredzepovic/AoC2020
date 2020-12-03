@@ -47,8 +47,7 @@ func isValidPasswordV2(policy string, password string) bool {
 		log.Fatalf("Failed to convert second position.")
 	}
 
-	if password[firstPosition-1] != password[secondPosition-1] &&
-		(string(password[firstPosition-1]) == letter || string(password[secondPosition-1]) == letter) {
+	if (string(password[firstPosition-1]) == letter) != (string(password[secondPosition-1]) == letter) {
 		return true
 	}
 	return false
