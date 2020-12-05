@@ -6,7 +6,9 @@ import (
 	"log"
 	"math"
 	"os"
+	"regexp"
 	"sort"
+	"strconv"
 )
 
 func getBinaryRange(start float64, end float64, partition string) (float64, float64) {
@@ -43,6 +45,21 @@ func getSeatID(seatCode string, maxRow float64, maxColumn float64) float64 {
 	return seatRowMin*8 + seatCloumnMin
 }
 
+func getSeatIDv2(seatCode string) int {
+	binaryZero := regexp.MustCompile("F|L")
+	binaryOne := regexp.MustCompile("B|R")
+
+	code := binaryZero.ReplaceAllString(seatCode, "0")
+	code = binaryOne.ReplaceAllString(code, "1")
+
+	ID, err := strconv.ParseInt(code, 2, 64)
+	if err != nil {
+		log.Fatalf("Failed to get seat ID.")
+	}
+
+	return int(ID)
+}
+
 func main() {
 	file, err := os.Open("input.txt")
 
@@ -53,15 +70,16 @@ func main() {
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
 
-	var seatIDs []float64
+	var seatIDs []int
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		seatID := getSeatID(line, 127, 7)
+		// seatID := getSeatID(line, 127, 7)
+		seatID := getSeatIDv2(line)
 		seatIDs = append(seatIDs, seatID)
 	}
 
-	sort.Float64s(seatIDs)
+	sort.Ints(seatIDs)
 
 	// part 1
 	fmt.Println(seatIDs[len(seatIDs)-1])
