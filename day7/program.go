@@ -95,6 +95,5 @@ func main() {
 
 	// part 2
 	fmt.Println(countBags("shiny gold", luggageRules) - 1)
-
 	file.Close()
 }
