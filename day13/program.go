@@ -46,6 +46,7 @@ func main() {
 		}
 	}
 
+	// part 1
 	minTS := earliestTS * 2
 	var minBus bus
 	for _, b := range busses {
@@ -60,9 +61,9 @@ func main() {
 		}
 	}
 
-	// part 1
 	fmt.Println((minTS - earliestTS) * minBus.id)
 
+	// part 2
 	n := []*big.Int{big.NewInt(busses[0].id)}
 	a := []*big.Int{big.NewInt(0)}
 
@@ -71,6 +72,5 @@ func main() {
 		a = append(a, big.NewInt(busses[i].id-busses[i].index))
 	}
 
-	// part 2
 	fmt.Println(chineseRemainderTheorem(a, n))
 }
