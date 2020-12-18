@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -66,6 +67,24 @@ func parseTicket(line string) []int64 {
 	return nums
 }
 
+func getLocation(locations map[uint64]int) uint64 {
+	max := 0
+	maxVals := map[int]int{}
+	id := uint64(0)
+
+	for k, v := range locations {
+		maxVals[v]++
+		if v > max {
+			max = v
+			id = k
+		}
+	}
+	if maxVals[max] == 1 {
+		return id
+	}
+	return 0
+}
+
 func main() {
 	file, err := os.Open("input.txt")
 
@@ -83,20 +102,60 @@ func main() {
 
 	ranges := parseRanges(lines[0:20])
 
-	//part 1
+	// part 1
 	intervalTree := augmentedtree.New(1)
 	for _, r := range ranges {
 		intervalTree.Add(augmentedtree.Interval(r))
 	}
 
 	notValid := int64(0)
+	validTickets := [][]int64{}
 	for i := 25; i < len(lines); i++ {
-		for _, n := range parseTicket(lines[i]) {
+		t := parseTicket(lines[i])
+		for _, n := range t {
 			var k augmentedtree.Interval = interval{id: 0, low: n, high: n}
 			if len(intervalTree.Query(k)) == 0 {
 				notValid += n
+			} else {
+				validTickets = append(validTickets, t)
 			}
 		}
 	}
 	fmt.Println(notValid)
+
+	// part 2
+	myTicket := parseTicket(lines[22])
+	locs := map[uint64]int{}
+
+	i := 0
+	found := 0
+	for found < len(myTicket) {
+		key := map[uint64]int{}
+
+		for j := 0; j < len(validTickets); j++ {
+			var k augmentedtree.Interval = interval{id: 0, low: validTickets[j][i], high: validTickets[j][i]}
+
+			intervals := intervalTree.Query(k)
+			for _, intv := range intervals {
+				if _, exists := locs[uint64(math.Ceil(float64(intv.ID())/float64(2)))]; !exists {
+					key[uint64(math.Ceil(float64(intv.ID())/float64(2)))]++
+				}
+			}
+		}
+
+		loc := getLocation(key)
+		if loc != 0 {
+			locs[loc] = i
+			found++
+		}
+
+		i = (i + 1) % len(myTicket)
+	}
+	final := int64(1)
+	for k, v := range locs {
+		if k < 7 {
+			final *= myTicket[v]
+		}
+	}
+	fmt.Println(final)
 }
